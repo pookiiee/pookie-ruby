@@ -866,7 +866,7 @@
       <a href="https://discord.gg/pookie0" target="_blank" class="server-footer-link">
         https://discord.gg/pookie0
       </a>
-      <div class="made-by-credit">made by pookie <3</div>
+      <div class="made-by-credit">made by pookie &lt;3</div>
     </footer>
 
   </div>
@@ -951,7 +951,7 @@
       {
         side: 'white',
         avatar: AVATARS.white_hair,
-        html: 'اونرات السيرفر مره رهيبات و لطيفات'
+        html: 'اونرات السيرفر ليان واسيل مره رهيبات و لطيفات'
       },
       {
         side: 'blonde',
@@ -972,10 +972,23 @@
       container.innerHTML = '';
     }
 
+    // حساب مهلة قراءة وكتابة واقعية ومريحة حسب طول الجملة (بوتيرة أسرع وأنشط)
+    function getMessageReadingDelay(html) {
+      const plainText = html.replace(/<[^>]*>/g, '').trim();
+      const len = plainText.length;
+      if (len <= 5) return 750;    // الرسائل القصيرة جداً
+      if (len <= 15) return 950;   // الكلمات القصيرة
+      if (len <= 35) return 1250;  // الجمل المتوسطة
+      if (len <= 65) return 1600;  // الجمل الطويلة
+      return 2100;                 // الجمل الطويلة والمميزات
+    }
+
     function runLiveDialogue() {
       clearAnimation();
 
-      SCRIPT.forEach((item, index) => {
+      let cumulativeDelay = 300; // تأخير بدائي خفيف وسريع قبل أول رسالة
+
+      SCRIPT.forEach((item) => {
         const row = document.createElement('div');
         row.className = `msg-row ${item.side === 'blonde' ? 'blonde-left' : 'white-right'}`;
 
@@ -988,12 +1001,17 @@
 
         container.appendChild(row);
 
-        // إظهار الرسائل تباعاً بنظام دردشة حية جارية أمامهم
+        const currentDelay = cumulativeDelay;
+
+        // إظهار الرسالة في وقتها المحدد لتوفير مهلة قراءة هادئة ومريحة
         const t = setTimeout(() => {
           row.classList.add('visible');
-        }, (index + 1) * 420);
+        }, currentDelay);
 
         timeouts.push(t);
+
+        // إضافة مهلة قراءة الجملة الحالية قبل ظهور الجملة التي تليها
+        cumulativeDelay += getMessageReadingDelay(item.html);
       });
     }
 
